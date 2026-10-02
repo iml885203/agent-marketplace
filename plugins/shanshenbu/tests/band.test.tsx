@@ -1,4 +1,4 @@
-import type { On } from 'claude-code'
+import type { On, TurnCompleteInput } from 'claude-code'
 import { expect, mock, test } from 'claude-code/testing'
 import type { Engine } from 'claude-code/testing'
 
@@ -72,4 +72,33 @@ test('/shanshenbu hides the band', async ($, on) => {
   const band = await $.ui.mount(BAND)
 
   expect(await band.find({ key: 'pet' })).toBeUndefined()
+})
+
+test('subagent completions preserve the main working mood until the main turn ends', async ($, on) => {
+  engine(on)
+  on('turn.start', ($, e) => ({ turnId: e.turnId }))
+  on('turn.complete', ($, e) => ({ text: e.answer }))
+  on('tool.call', () => ({ result: 'read' }))
+  await start($)
+  const band = await $.ui.mount(BAND)
+  const label = async () => (await band.find({ type: 'Text' }))?.text
+  await $.turn.start({ text: 'Fixture main turn', turnId: 'main-turn' })
+
+  const child = { agentId: 'child-agent', turnId: 'child-turn', answer: 'Child result', durationMs: 1 }
+  const completions: TurnCompleteInput[] = [
+    { ...child, reason: 'answer', isAborted: false },
+    { ...child, reason: 'aborted', isAborted: true },
+    { ...child, reason: 'error', isAborted: false },
+    { ...child, reason: 'refusal', isAborted: false, refusal: { category: null, explanation: null } },
+  ]
+  for (const completion of completions) {
+    expect((await $.turn.complete(completion)).text).toBe('Child result')
+    expect(await label()).toBe('閃身步 · 工作中')
+  }
+
+  // A subsequent tool settling must still return to the main working mood.
+  await $.tool.call({ tool: 'Read', file_path: '/tmp/fixture' })
+  expect(await label()).toBe('閃身步 · 工作中')
+  await $.turn.complete({ turnId: 'main-turn', answer: 'Main result', durationMs: 2, isAborted: false, reason: 'answer' })
+  expect(await label()).toBe('閃身步 · 完成！')
 })

@@ -55,6 +55,7 @@ python3 scripts/sync.py
 python3 scripts/sync.py --check
 python3 scripts/validate.py
 python3 -m unittest discover -s tests -v
+node --test tests/shanshenbu-turn-complete.test.mjs
 claude plugin validate .
 claude plugin validate ./plugins/text-summary
 claude plugin validate ./plugins/shanshenbu
@@ -63,7 +64,7 @@ claude plugin test ./plugins/shanshenbu
 
 The Python scripts require only Python 3.9+ and its standard library. Commit the generated files; CI checks their consistency. The generator owns the two marketplace files and `plugins/*/.claude-plugin/plugin.json` / `plugins/*/.codex-plugin/plugin.json`. When a plugin changes platforms or leaves the catalog, `sync.py` removes its obsolete generated manifests while preserving source files and directories. Do not keep manually authored manifests at these reserved paths. `--check` reports missing, changed, or obsolete generated files without writing anything. Inputs and output paths are checked before generation or cleanup.
 
-The validator checks the supported catalog and hooks schema subset, module existence and extensions, containment, symlinks, skill frontmatter, and generated metadata consistency. It does not parse or execute hook modules, follow their imports, verify their `register` export, type-check state declarations, validate event names, or parse shell commands and their referenced paths. Use Claude's native validation and tests for those platform checks. Unit tests use temporary fixtures and never execute a Mod. Actual agent output and UI behavior still need a manual smoke test.
+The validator checks the supported catalog and hooks schema subset, module existence and extensions, containment, symlinks, skill frontmatter, and generated metadata consistency. It does not parse or execute hook modules, follow their imports, verify their `register` export, type-check state declarations, validate event names, or parse shell commands and their referenced paths. Use Claude's native validation and tests for those platform checks. The Python unit tests use temporary fixtures and never execute a Mod. The Node.js 22+ regression tests execute the actual `shanshenbu` completion callback body with state and clock stubs, using only built-in Node modules; they do not load Claude, render its UI, or establish full Mod runtime compatibility. CI runs both suites. The native band regression test still requires a compatible Claude version. Actual agent output and UI behavior still need a manual smoke test.
 
 ## Support scope
 

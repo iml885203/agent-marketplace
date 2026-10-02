@@ -109,6 +109,10 @@ export const register: Register = on => {
   })
 
   on('turn.complete', async ($, e, next) => {
+    // Child loops also complete turns; only the main loop controls this pet.
+    if (e.agentId !== undefined) {
+      return next(e)
+    }
     isTurnRunning = false
     if (e.reason === 'answer') {
       await setMood($, 'jump')
