@@ -1,36 +1,36 @@
 # Agent Marketplace
 
-個人維護的 Claude Code / Codex skills-only marketplace。共用同一份 skill；各平台保留獨立 manifest。示範 `text-summary` 只整理使用者提供的文字，沒有 MCP、hooks、外部服務或額外權限。
+A personally maintained, skills-only marketplace for Claude Code and Codex. Both platforms share the same skill instructions and use separate manifests. The `text-summary` example summarizes text supplied by the user and includes no MCP servers, hooks, external services, or additional permissions.
 
-## 安裝
+## Installation
 
-Claude Code（在 session 內）：
+In a Claude Code session:
 
 ```text
 /plugin marketplace add iml885203/agent-marketplace
 /plugin install text-summary@agent-marketplace
-/text-summary:summarize 請摘要以下文字：…
+/text-summary:summarize Summarize the following text: …
 ```
 
-Codex CLI：
+With the Codex CLI:
 
 ```sh
 codex plugin marketplace add iml885203/agent-marketplace --ref main
 codex plugin add text-summary@agent-marketplace
 ```
 
-重開 session，使用 `$summarize` 並提供文字。Codex app 可從 Plugins 瀏覽已設定 marketplace；介面與 repo source 可用性依版本而異。
+Start a new session, invoke `$summarize`, and provide the text to summarize. In the Codex app, browse configured marketplaces through Plugins. The interface and availability of repository sources vary by version.
 
-也可以 clone 後以本地路徑取代 `iml885203/agent-marketplace`。上面的安裝命令會變更執行者自己的設定；本 repo 的生成與驗證腳本不會安裝插件。
+You can also clone this repository and replace `iml885203/agent-marketplace` with its local path. The installation commands above update the settings of the person running them. This repository's generation and validation scripts do not install plugins.
 
-## 結構與新增插件
+## Structure and adding plugins
 
-- `catalog.json`：插件名稱、版本與描述的單一來源。
-- `plugins/<name>/skills/<skill>/SKILL.md`：Claude / Codex 共用指示；支援的 scripts/resources 放在相同插件目錄內，不引用 repo 外部檔案。
-- `scripts/sync.py`：生成兩套 marketplace 與 plugin manifests。
-- `.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json`：兩平台 catalog。
+- `catalog.json`: the single source of truth for plugin names, versions, and descriptions.
+- `plugins/<name>/skills/<skill>/SKILL.md`: shared Claude Code and Codex instructions. Keep supporting scripts and resources inside the same plugin directory; do not reference files outside the repository.
+- `scripts/sync.py`: generates both platforms' marketplace files and plugin manifests.
+- `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`: the platform-specific catalogs.
 
-新增 `catalog.json` entry，建立對應 skill（frontmatter 必須含 `name` 與 `description`），提高有變更插件的 semantic version，再執行：
+Add an entry to `catalog.json`, create the corresponding skill with `name` and `description` in its frontmatter, and increment the semantic version of any changed plugin. Then run:
 
 ```sh
 python3 scripts/sync.py
@@ -40,12 +40,12 @@ claude plugin validate .
 claude plugin validate ./plugins/text-summary
 ```
 
-只需 Python 3.9+ 標準函式庫。提交生成檔；CI 檢查相同內容。驗證器檢查本 skeleton 使用的 schema 子集合與路徑，不聲稱完整驗證平台所有功能。實際 agent 輸出仍需人工 smoke test。
+The Python scripts require only Python 3.9+ and its standard library. Commit the generated files; CI checks their consistency. The validator checks the schema subset and paths used by this skeleton, rather than every feature supported by either platform. Actual agent output still needs a manual smoke test.
 
-## 支援範圍
+## Support scope
 
-2026-10-02 核對官方格式；本機 CLI 為 Codex 0.159.2 / Claude Code 2.1.251。使用 Codex 仍支援的 `.codex-plugin/plugin.json` compatibility layout；新版 portable root `plugin.json` 是不同格式，不直接重新命名。本 skeleton 僅共享 skills，未宣稱 hooks、MCP、apps 或平台功能全部通用。未對使用者全域設定進行安裝測試。
+The official formats were checked on October 2, 2026, with Codex CLI 0.159.2 and Claude Code 2.1.251 installed locally. This repository uses the supported Codex `.codex-plugin/plugin.json` compatibility layout. The newer portable format uses a root-level `plugin.json` with a different schema; migration requires more than renaming the file. This skeleton shares skills only and does not claim that hooks, MCP servers, apps, or all platform features are interchangeable. Installation was not tested against the user's global settings.
 
-官方參考：[OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins)、[Claude marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)。結構靈感：[dashed/claude-marketplace](https://github.com/dashed/claude-marketplace) 的生成一致性策略與 [duyet/codex-claude-plugins](https://github.com/duyet/codex-claude-plugins) 的雙平台結構；沒有複製或執行其 scripts。
+Official references: [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins) and [Claude marketplaces](https://code.claude.com/docs/en/plugin-marketplaces). The structure draws inspiration from the generation consistency strategy in [dashed/claude-marketplace](https://github.com/dashed/claude-marketplace) and the dual-platform layout in [duyet/codex-claude-plugins](https://github.com/duyet/codex-claude-plugins). Their scripts were neither copied nor executed.
 
-僅含本次新寫的通用內容，不含個人記憶、聊天、公司程式或憑證。MIT license。
+This repository contains only newly written, general-purpose content. It includes no personal memories, chats, company code, or credentials. Licensed under MIT.
