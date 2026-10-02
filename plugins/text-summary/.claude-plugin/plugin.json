@@ -1,0 +1,10 @@
+{
+  "name": "text-summary",
+  "version": "0.1.0",
+  "description": "Summarize supplied text without external tools.",
+  "author": {
+    "name": "iml885203"
+  },
+  "repository": "https://github.com/iml885203/agent-marketplace",
+  "license": "MIT"
+}

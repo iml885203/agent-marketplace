@@ -1,0 +1,14 @@
+{
+  "name": "agent-marketplace",
+  "description": "Personal skills for Claude Code and Codex.",
+  "owner": {
+    "name": "iml885203"
+  },
+  "plugins": [
+    {
+      "name": "text-summary",
+      "source": "./plugins/text-summary",
+      "description": "Summarize supplied text without external tools."
+    }
+  ]
+}

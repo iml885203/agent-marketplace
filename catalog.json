@@ -1,0 +1,11 @@
+{
+  "name": "agent-marketplace",
+  "owner": "iml885203",
+  "plugins": [
+    {
+      "name": "text-summary",
+      "version": "0.1.0",
+      "description": "Summarize supplied text without external tools."
+    }
+  ]
+}
