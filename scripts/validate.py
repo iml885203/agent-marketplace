@@ -1,4 +1,4 @@
-"""Validate the supported skills-only schema subset, paths, and generated files."""
+"""Validate the supported skills-and-mods schema subset, paths, and generated files."""
 import json
 import re
 from pathlib import Path
@@ -15,12 +15,20 @@ require(catalog["plugins"], "Empty plugin catalog")
 names = [p["name"] for p in catalog["plugins"]]
 require(len(names) == len(set(names)), "Duplicate plugin names")
 for item in catalog["plugins"]:
-    require(set(item) == {"name", "version", "description"}, "Invalid plugin fields")
+    require({"name", "version", "description"} <= set(item) <= {"name", "version", "description", "kind", "license"}, "Invalid plugin fields")
+    require(item.get("kind", "skills") in {"skills", "mod"}, "Invalid plugin kind")
     require(re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", item["name"]), "Invalid plugin name")
     require(re.fullmatch(r"\d+\.\d+\.\d+", item["version"]), "Invalid version")
     require(isinstance(item["description"], str) and item["description"], "Missing description")
     plugin = ROOT / "plugins" / item["name"]
     require(plugin.resolve().is_relative_to(ROOT), "Plugin escapes root")
+    if item.get("kind") == "mod":
+        hooks = plugin / "hooks" / "hooks.json"
+        require(hooks.is_file(), "Missing hooks/hooks.json")
+        modules = json.loads(hooks.read_text()).get("modules")
+        require(modules and all((hooks.parent / m).is_file() for m in modules), "Missing hooks module")
+        require((plugin / "types" / "index.d.ts").is_file(), "Missing types/index.d.ts")
+        continue
     skills = list((plugin / "skills").glob("*/SKILL.md"))
     require(skills, "Missing skills")
     for skill in skills:
@@ -37,4 +45,4 @@ for relative, expected in outputs().items():
     json.loads(path.read_text())
 for path in ROOT.rglob("*"):
     require(not path.is_symlink(), f"Unexpected symlink: {path}")
-print("PASS: schema subset, JSON, unique names, paths, skills, generation consistency")
+print("PASS: schema subset, JSON, unique names, paths, skills, mods, generation consistency")

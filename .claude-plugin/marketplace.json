@@ -1,6 +1,6 @@
 {
   "name": "agent-marketplace",
-  "description": "Personal skills for Claude Code and Codex.",
+  "description": "Personal skills and mods for Claude Code and Codex.",
   "owner": {
     "name": "iml885203"
   },
@@ -9,6 +9,11 @@
       "name": "text-summary",
       "source": "./plugins/text-summary",
       "description": "Summarize supplied text without external tools."
+    },
+    {
+      "name": "shanshenbu",
+      "source": "./plugins/shanshenbu",
+      "description": "\u9583\u8eab\u6b65 pet mod: a chibi dancer above the prompt that side-steps while Claude works, kicks while it edits, and shivers while it waits for you. Claude Code v2.1.287+ only."
     }
   ]
 }

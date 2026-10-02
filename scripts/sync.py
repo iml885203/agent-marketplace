@@ -11,12 +11,17 @@ def outputs():
     claude_entries, codex_entries, files = [], [], {}
     for item in catalog["plugins"]:
         plugin = item["name"]
-        common = dict(item, author={"name": owner}, repository=f"https://github.com/{owner}/{name}", license="MIT")
+        fields = {key: item[key] for key in ("name", "version", "description")}
+        common = dict(fields, author={"name": owner}, repository=f"https://github.com/{owner}/{name}", license=item.get("license", "MIT"))
+        claude_entries.append({"name": plugin, "source": f"./plugins/{plugin}", "description": item["description"]})
+        if item.get("kind") == "mod":
+            # Mods run inside Claude Code only; their state contract rides the manifest
+            files[f"plugins/{plugin}/.claude-plugin/plugin.json"] = dict(common, types="./types/index.d.ts")
+            continue
         files[f"plugins/{plugin}/.claude-plugin/plugin.json"] = common
         files[f"plugins/{plugin}/.codex-plugin/plugin.json"] = dict(common, skills="./skills/", interface={"displayName": plugin.replace("-", " ").title(), "shortDescription": item["description"], "developerName": owner, "category": "Productivity"})
-        claude_entries.append({"name": plugin, "source": f"./plugins/{plugin}", "description": item["description"]})
         codex_entries.append({"name": plugin, "source": {"source": "local", "path": f"./plugins/{plugin}"}, "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"}, "category": "Productivity"})
-    files[".claude-plugin/marketplace.json"] = {"name": name, "description": "Personal skills for Claude Code and Codex.", "owner": {"name": owner}, "plugins": claude_entries}
+    files[".claude-plugin/marketplace.json"] = {"name": name, "description": "Personal skills and mods for Claude Code and Codex.", "owner": {"name": owner}, "plugins": claude_entries}
     files[".agents/plugins/marketplace.json"] = {"name": name, "interface": {"displayName": "Agent Marketplace"}, "plugins": codex_entries}
     return {path: json.dumps(value, indent=2) + "\n" for path, value in files.items()}
 

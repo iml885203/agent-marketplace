@@ -6,6 +6,13 @@
       "name": "text-summary",
       "version": "0.1.0",
       "description": "Summarize supplied text without external tools."
+    },
+    {
+      "name": "shanshenbu",
+      "version": "0.1.0",
+      "description": "閃身步 pet mod: a chibi dancer above the prompt that side-steps while Claude works, kicks while it edits, and shivers while it waits for you. Claude Code v2.1.287+ only.",
+      "kind": "mod",
+      "license": "SEE LICENSE IN LICENSE"
     }
   ]
 }
